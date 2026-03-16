@@ -1,0 +1,5 @@
+{
+  "name": "Gerador de Convites JPR 2026",
+  "description": "Ferramenta para gerar e enviar convites por e-mail em massa usando Google Sheets e Apps Script.",
+  "requestFramePermissions": []
+}
