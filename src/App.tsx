@@ -7,63 +7,83 @@ const codeGs = `function enviarConvites() {
   
   // Assumindo que a linha 1 é o cabeçalho:
   var cabecalho = dados[0];
-  var indexNome = cabecalho.indexOf("Nome do Convidado");
-  var indexEmail = cabecalho.indexOf("Email");
+  var indexNome    = cabecalho.indexOf("Nome do Convidado");
+  var indexEmail   = cabecalho.indexOf("Email");
   var indexEmpresa = cabecalho.indexOf("Nome da Empresa");
-  var indexCodigo = cabecalho.indexOf("Código do Convite");
-  var indexStatus = cabecalho.indexOf("Status");
-  
+  var indexCodigo  = cabecalho.indexOf("Código do Convite");
+  var indexStatus  = cabecalho.indexOf("Status");
+  var indexLog     = cabecalho.indexOf("LOG");
+
   if (indexNome === -1 || indexEmail === -1 || indexEmpresa === -1 || indexCodigo === -1 || indexStatus === -1) {
     SpreadsheetApp.getUi().alert("Erro: Certifique-se de que as colunas 'Nome do Convidado', 'Email', 'Nome da Empresa', 'Código do Convite' e 'Status' existem na primeira linha.");
     return;
   }
-  
+
+  if (indexLog === -1) {
+    SpreadsheetApp.getUi().alert("Erro: A coluna 'LOG' não foi encontrada na primeira linha.");
+    return;
+  }
+
   var limiteEnviosPorExecucao = 50; // Limite para evitar timeout e bloqueios
   var enviosNestaExecucao = 0;
-  
+
   var templateHtml = HtmlService.createHtmlOutputFromFile('TemplateEmail').getContent();
-  
+
+  // Fuso horário do Brasil (Brasília)
+  var timeZone = "America/Sao_Paulo";
+
   for (var i = 1; i < dados.length; i++) {
     var linha = dados[i];
     var status = linha[indexStatus];
-    
+
     if (status !== "Enviado" && linha[indexEmail] !== "") {
-      var nome = linha[indexNome];
-      var email = linha[indexEmail];
+      var nome    = linha[indexNome];
+      var email   = linha[indexEmail];
       var empresa = linha[indexEmpresa];
-      var codigo = linha[indexCodigo];
-      
+      var codigo  = linha[indexCodigo];
+
       var assunto = "Convite JPR 2026 | " + nome;
-      
+
       var corpoHtml = templateHtml
         .replace(/{{NOME DO CONVIDADO}}/g, nome)
         .replace(/{{NOME DA EMPRESA}}/g, empresa)
         .replace(/{{CÓDIGO-CONVITE}}/g, codigo);
-        
+
       try {
         GmailApp.sendEmail(email, assunto, "", {
           htmlBody: corpoHtml,
           name: empresa + " - Convite JPR 2026"
         });
-        
-        // Atualiza o status na planilha
+
+        // Gera timestamp no fuso de Brasília
+        var agora = new Date();
+        var timestamp = Utilities.formatDate(agora, timeZone, "dd/MM/yyyy HH:mm:ss");
+
+        // Atualiza Status e LOG na planilha
         planilha.getRange(i + 1, indexStatus + 1).setValue("Enviado");
+        planilha.getRange(i + 1, indexLog + 1).setValue("Enviado em " + timestamp);
+
         enviosNestaExecucao++;
-        
+
         // Pausa de 1.5 segundos entre envios para evitar bloqueios de taxa do Gmail
         Utilities.sleep(1500);
-        
+
       } catch (e) {
-        planilha.getRange(i + 1, indexStatus + 1).setValue("Erro: " + e.message);
+        // Em caso de erro, registra o erro com timestamp também
+        var agora = new Date();
+        var timestamp = Utilities.formatDate(agora, timeZone, "dd/MM/yyyy HH:mm:ss");
+
+        planilha.getRange(i + 1, indexStatus + 1).setValue("Erro");
+        planilha.getRange(i + 1, indexLog + 1).setValue("Erro em " + timestamp + ": " + e.message);
       }
-      
+
       if (enviosNestaExecucao >= limiteEnviosPorExecucao) {
         SpreadsheetApp.getUi().alert("Limite de " + limiteEnviosPorExecucao + " envios atingido nesta execução para evitar bloqueios. Execute o script novamente para continuar os envios pendentes.");
         break;
       }
     }
   }
-  
+
   if (enviosNestaExecucao > 0 && enviosNestaExecucao < limiteEnviosPorExecucao) {
     SpreadsheetApp.getUi().alert("Todos os convites pendentes foram enviados com sucesso!");
   } else if (enviosNestaExecucao === 0) {
@@ -84,7 +104,6 @@ const templateHtml = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Reset básico para e-mail */
     body, p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; }
     body { 
       font-family: 'Segoe UI', Arial, sans-serif; 
@@ -94,8 +113,6 @@ const templateHtml = `<!DOCTYPE html>
       padding: 40px 20px;
       -webkit-font-smoothing: antialiased;
     }
-    
-    /* Container principal */
     .wrapper { 
       max-width: 650px; 
       margin: 0 auto; 
@@ -104,16 +121,12 @@ const templateHtml = `<!DOCTYPE html>
       overflow: hidden; 
       box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
     }
-    
-    /* Cabeçalho */
     .header-img { 
       width: 100%; 
       max-width: 650px; 
       height: auto; 
       display: block; 
     }
-    
-    /* Barras de Informação */
     .bar-dark {
       background-color: #1e293b;
       color: #ffffff;
@@ -123,47 +136,36 @@ const templateHtml = `<!DOCTYPE html>
       font-weight: 600;
       line-height: 1.4;
     }
-    
     .bar-blue {
       background-color: #1e293b;
       color: #ffffff;
       text-align: center;
       padding: 16px 20px;
-      font-size: 16px;
+      font-size: 22px;
       font-weight: bold;
     }
-    
-    /* Seções */
     .section-dark {
       background-color: #1e293b;
       color: #f8fafc;
       padding: 40px 30px;
       text-align: center;
     }
-    
     .section-dark p {
       color: #cbd5e1;
       font-size: 16px;
       text-align: left;
       margin-bottom: 20px;
     }
-    
-    .section-dark strong {
-      color: #ffffff;
-    }
-    
+    .section-dark strong { color: #ffffff; }
     .section-light {
       background-color: #ffffff;
       padding: 40px 30px;
       color: #334155;
     }
-    
     .section-light p {
       margin-bottom: 15px;
       font-size: 15px;
     }
-    
-    /* Botões e Títulos */
     .btn-orange {
       display: inline-block;
       background-color: #f97316;
@@ -176,13 +178,7 @@ const templateHtml = `<!DOCTYPE html>
       margin: 20px 0;
       box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
       text-transform: uppercase;
-      transition: background-color 0.3s;
     }
-    
-    .btn-orange:hover {
-      background-color: #ea580c;
-    }
-    
     .title-orange {
       color: #f97316;
       font-size: 24px;
@@ -190,8 +186,6 @@ const templateHtml = `<!DOCTYPE html>
       margin-bottom: 20px;
       text-align: center;
     }
-    
-    /* Destaque do Código */
     .code-box {
       display: block;
       background-color: #fff7ed;
@@ -206,8 +200,6 @@ const templateHtml = `<!DOCTYPE html>
       margin: 25px auto;
       max-width: 300px;
     }
-    
-    /* Imagens de Instrução */
     .instruction-img { 
       width: 100%; 
       max-width: 100%; 
@@ -218,66 +210,31 @@ const templateHtml = `<!DOCTYPE html>
       display: block; 
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    
-    /* Encerramento */
     .closing {
       margin-top: 40px;
       padding-top: 30px;
       border-top: 1px solid #e2e8f0;
       text-align: left;
     }
-    
-    .closing-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-    
-    .closing-signature {
-      font-size: 18px;
-      font-weight: bold;
-      color: #f97316;
-    }
-    
-    /* Regras e Rodapé */
     .footer { 
       background-color: #ffffff; 
       padding: 35px 30px; 
       border-top: 1px solid #e2e8f0;
     }
-    
-    .rules h3 { 
-      margin-top: 0; 
-      color: #0f172a; 
-      font-size: 15px;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .rules ul { 
-      padding-left: 20px; 
-      margin-bottom: 20px;
-    }
-    
+    .rules ul { padding-left: 20px; margin-bottom: 20px; }
     .rules li { 
       margin-bottom: 10px; 
       font-size: 12px;
       color: #475569;
       line-height: 1.5;
     }
-    
     .footer-links {
       font-size: 12px;
       color: #64748b;
       text-align: center;
       margin-top: 25px;
     }
-    
     a { color: #f97316; text-decoration: none; font-weight: 500; }
-    a:hover { text-decoration: underline; }
-    
     @media only screen and (max-width: 600px) {
       body { padding: 10px; }
       .section-dark, .section-light, .footer { padding: 30px 20px; }
@@ -287,62 +244,46 @@ const templateHtml = `<!DOCTYPE html>
 </head>
 <body>
   <div class="wrapper">
-    <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. Para funcionar, faça o upload do arquivo Banner_JPR26.png para a pasta "public/image" no menu lateral. -->
-    <img src="/image/Banner_JPR26.png" alt="JPR 2026" class="header-img" />
-    
+
+    <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Banner_JPR26.png" alt="JPR 2026" class="header-img" />
+
     <div class="bar-dark">
       A RADIX Eizo confirma presença na JPR 2026 e convida você para nos visitar em nosso estande.
     </div>
-    
+
     <div class="bar-blue">
-      📍 Local: Transamerica Expo Center / SP 📌 Estande 56
+      <span style="color:#f97316; font-weight:900; font-size:20px;">&#9679;</span> Local: Transamerica Expo Center / SP &nbsp;&nbsp;<span style="color:#f97316; font-weight:900; font-size:20px;">&#9679;</span> Estande 56
     </div>
-    
+
     <div class="section-dark">
-      <h2 style="font-size: 22px; color: #ffffff; margin-bottom: 25px; white-space: nowrap;">Sua Jornada rumo à Precisão Diagnóstica começa aqui:</h2>
-      
+      <h2 style="font-size: 22px; color: #ffffff; margin-bottom: 25px;">Sua Jornada rumo à Precisão Diagnóstica começa aqui:</h2>
       <p>Olá, <strong>{{NOME DO CONVIDADO}}</strong>,</p>
-      
       <p>A <strong>RADIX Eizo</strong> e a <strong>Lumix</strong> têm o prazer de convidá-lo(a) para uma experiência transformadora na <strong>56ª Jornada Paulista de Radiologia (JPR 2026)</strong>, de 30 de abril a 3 de maio.</p>
-      
       <p>Prepare-se para elevar o padrão do seu fluxo de trabalho. Em nosso estande, você descobrirá como a tecnologia de ponta está redefinindo o diagnóstico por imagem:</p>
-      
-      <ul style="color: #ffffff; margin-bottom: 20px; text-align: left; display: inline-block;">
-        <li><strong>Monitor Médico Eizo RX570MD:</strong> A referência mundial em fidelidade e clareza para diagnósticos complexos.</li>
-        <li><strong>Workstation MEDECOM (Lumix):</strong> A revolução na mamografia com Inteligência Artificial, laudos em segundos e precisão absoluta.</li>
+      <ul style="color: #cbd5e1; margin-bottom: 20px; text-align: left; display: inline-block; font-size: 16px; line-height: 1.7;">
+        <li style="margin-bottom: 12px;"><strong style="color:#ffffff;">Monitor Médico Eizo RX570MD:</strong> A referência mundial em fidelidade e clareza para diagnósticos complexos.</li>
+        <li style="margin-bottom: 12px;"><strong style="color:#ffffff;">Workstation MEDECOM Univen HealthCare:</strong> A revolução na mamografia com Inteligência Artificial, laudos em segundos e precisão absoluta.</li>
       </ul>
-      
       <p>Não perca a chance de ver de perto as soluções que estão moldando o futuro da radiologia na América Latina.</p>
     </div>
-    
-    <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-    <img src="/image/Banner_RX570.png" alt="Monitor RX570" class="header-img" />
-    
-    <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-    <img src="/image/banner_Medecom3.png" alt="Banner Medecom" class="header-img" />
-    
+
+    <a href="http://www.radix.med.br" target="_blank" style="display:block;">
+      <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Banner_RX570.png" alt="Monitor RX570" class="header-img" />
+    </a>
+    <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/banner_Medecom3.png" alt="Banner Medecom" class="header-img" />
+
     <div class="section-light" style="text-align: center;">
       <a href="https://spr.iweventos.com.br/evento/visitantesjpr2026/home" class="btn-orange">GARANTIR MINHA VAGA</a>
-
       <h2 class="title-orange">Como utilizar seu convite isento:</h2>
-      
       <p><strong>1.</strong> Na tela inicial do sistema, informe o seu CPF na opção "Quero me inscrever no evento" e clique no botão "Fazer Inscrição".</p>
-      
-      <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-      <img src="/image/Imagem_inst_1.png" alt="Instrução 1" class="instruction-img" />
-      
+      <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Imagem_inst_1.png" alt="Instrução 1" class="instruction-img" />
       <p style="margin-top: 25px;"><strong>2.</strong> Siga com o processo de inclusão dos dados cadastrais, selecione a atividade "Visita à JPR 2026" e confirme. Insira o código abaixo para garantir sua isenção:</p>
-      
       <div class="code-box">{{CÓDIGO-CONVITE}}</div>
-      
-      <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-      <img src="/image/Imagem_inst_2.png" alt="Instrução 2" class="instruction-img" />
-      
+      <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Imagem_inst_2.png" alt="Instrução 2" class="instruction-img" />
       <p style="margin-top: 25px;">No dia do evento, dirija-se à Secretaria de Visitantes com um documento com foto para retirar seu crachá.</p>
-      
       <p>Além da exposição técnica, você também terá acesso ao curso de <strong>Profissionalismo e Gestão em Saúde</strong> (Sala G - Hall F/G), nos dias 30 de abril, 1º e 2 de maio.</p>
     </div>
-    
+
     <div class="footer">
       <div class="rules">
         <ul>
@@ -351,26 +292,22 @@ const templateHtml = `<!DOCTYPE html>
           <li>É obrigatória a apresentação de documento oficial com foto para a retirada do crachá no local do evento.</li>
         </ul>
       </div>
-      
       <div class="closing">
         <h2 style="font-size: 20px; color: #0f172a; margin-bottom: 8px; font-weight: bold;">Dúvidas?</h2>
         <p style="font-size: 16px; color: #334155; margin-bottom: 8px;">Entre em contato com nosso especialista:</p>
-        <div style="font-size: 18px; font-weight: bold; color: #f97316; margin-bottom: 4px;">
-          Paulo Castanho
-        </div>
+        <div style="font-size: 18px; font-weight: bold; color: #f97316; margin-bottom: 4px;">Paulo Castanho</div>
         <div style="font-size: 16px; color: #334155;">
-          <a href="mailto:paulo@eizo.com.br" style="color: #334155; text-decoration: none;">paulo@eizo.com.br</a>
+          <a href="mailto&#58;paulo&#64;eizo&#46;com&#46;br" style="color: #334155; text-decoration: none;">paulo&#64;eizo&#46;com&#46;br</a>
         </div>
       </div>
-      
       <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
-        <img src="/image/banner_logo_RADIX_EIZO.png" alt="Logo RADIX Eizo" style="max-width: 500px; width: 100%; height: auto; display: inline-block;" />
+        <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/banner_logo_RADIX_EIZO.png" alt="Logo RADIX Eizo" style="max-width: 500px; width: 100%; height: auto; display: inline-block;" />
       </div>
-      
       <div class="footer-links">
-        © 2026 RADIX Eizo & Lumix. Todos os direitos reservados.
+        &#169; 2026 RADIX Eizo &#38; Lumix. Todos os direitos reservados.
       </div>
     </div>
+
   </div>
 </body>
 </html>`;
@@ -471,8 +408,9 @@ export default function App() {
                       <span className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm font-mono">Nome da Empresa</span>
                       <span className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm font-mono">Código do Convite</span>
                       <span className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm font-mono">Status</span>
+                      <span className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm font-mono">LOG</span>
                     </div>
-                    <p className="text-sm text-slate-500 mt-2">Preencha os dados dos convidados nas linhas abaixo. A coluna "Status" deve ficar vazia (o script irá preenchê-la).</p>
+                    <p className="text-sm text-slate-500 mt-2">Preencha os dados dos convidados nas linhas abaixo. As colunas "Status" e "LOG" devem ficar vazias (o script irá preenchê-las).</p>
                   </div>
                 </div>
 
@@ -499,15 +437,12 @@ export default function App() {
                     <p className="text-slate-600 mt-1">No editor do Apps Script, clique no ícone de <strong>+</strong> (Adicionar um arquivo) ao lado de "Arquivos" e escolha <strong>HTML</strong>. Nomeie o arquivo exatamente como <strong>TemplateEmail</strong> (sem o .html no nome, o sistema já adiciona).</p>
                     <p className="text-slate-600 mt-2">Cole o código da aba <strong>TemplateEmail.html</strong> desta ferramenta dentro deste novo arquivo e salve.</p>
                     
-                    <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg flex gap-3">
-                      <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                    <div className="mt-4 bg-blue-50 border border-blue-200 p-4 rounded-lg flex gap-3">
+                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0" />
                       <div>
-                        <h4 className="font-medium text-amber-800">Importante sobre as Imagens</h4>
-                        <p className="text-sm text-amber-700 mt-1">
-                          As imagens do banner (<strong>Banner_JPR26.png</strong>, <strong>Banner_RX570.png</strong>, <strong>banner_Medecom3.png</strong>, <strong>banner_logo_RADIX_EIZO.png</strong>) e as de instrução (<strong>Imagem_inst_1.png</strong>, <strong>Imagem_inst_2.png</strong>) já estão configuradas no código para serem carregadas diretamente desta aplicação. 
-                        </p>
-                        <p className="text-sm font-bold text-amber-800 mt-2">
-                          Para que funcione, você precisa garantir que esses arquivos estejam dentro da pasta <code>public/image</code> no menu lateral esquerdo.
+                        <h4 className="font-medium text-blue-800">Sobre as Imagens</h4>
+                        <p className="text-sm text-blue-700 mt-1">
+                          As imagens do banner e as de instrução já estão configuradas no código para serem carregadas diretamente do seu repositório no GitHub (<code>carlosmelchiors.github.io/Eizo_JPR26</code>).
                         </p>
                       </div>
                     </div>
@@ -555,8 +490,6 @@ export default function App() {
                     .replace(/{{NOME DO CONVIDADO}}/g, "João Silva")
                     .replace(/{{NOME DA EMPRESA}}/g, "TechMed Solutions")
                     .replace(/{{CÓDIGO-CONVITE}}/g, "JPR2026-XYZ987")
-                    .replace(/https:\/\/ais-pre-qxvdta2cswvllv3uoclirw-446518874521\.us-east1\.run\.app/g, window.location.origin)
-                    .replace(/https:\/\/ais-dev-qxvdta2cswvllv3uoclirw-446518874521\.us-east1\.run\.app/g, window.location.origin)
                   } 
                   className="w-full h-[800px] border-0"
                   title="Email Preview"
