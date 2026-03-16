@@ -288,7 +288,7 @@ const templateHtml = `<!DOCTYPE html>
 <body>
   <div class="wrapper">
     <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. Para funcionar, faça o upload do arquivo Banner_JPR26.png para a pasta "public/image" no menu lateral. -->
-    <img src="https://ais-pre-qxvdta2cswvllv3uoclirw-446518874521.us-east1.run.app/image/Banner_JPR26.png" alt="JPR 2026" class="header-img" />
+    <img src="/image/Banner_JPR26.png" alt="JPR 2026" class="header-img" />
     
     <div class="bar-dark">
       A RADIX Eizo confirma presença na JPR 2026 e convida você para nos visitar em nosso estande.
@@ -316,10 +316,10 @@ const templateHtml = `<!DOCTYPE html>
     </div>
     
     <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-    <img src="https://ais-pre-qxvdta2cswvllv3uoclirw-446518874521.us-east1.run.app/image/Banner_RX570.png" alt="Monitor RX570" class="header-img" />
+    <img src="/image/Banner_RX570.png" alt="Monitor RX570" class="header-img" />
     
     <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-    <img src="https://ais-pre-qxvdta2cswvllv3uoclirw-446518874521.us-east1.run.app/image/banner_Medecom3.png" alt="Banner Medecom" class="header-img" />
+    <img src="/image/banner_Medecom3.png" alt="Banner Medecom" class="header-img" />
     
     <div class="section-light" style="text-align: center;">
       <a href="https://spr.iweventos.com.br/evento/visitantesjpr2026/home" class="btn-orange">GARANTIR MINHA VAGA</a>
@@ -329,14 +329,14 @@ const templateHtml = `<!DOCTYPE html>
       <p><strong>1.</strong> Na tela inicial do sistema, informe o seu CPF na opção "Quero me inscrever no evento" e clique no botão "Fazer Inscrição".</p>
       
       <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-      <img src="https://ais-pre-qxvdta2cswvllv3uoclirw-446518874521.us-east1.run.app/image/Imagem_inst_1.png" alt="Instrução 1" class="instruction-img" />
+      <img src="/image/Imagem_inst_1.png" alt="Instrução 1" class="instruction-img" />
       
       <p style="margin-top: 25px;"><strong>2.</strong> Siga com o processo de inclusão dos dados cadastrais, selecione a atividade "Visita à JPR 2026" e confirme. Insira o código abaixo para garantir sua isenção:</p>
       
       <div class="code-box">{{CÓDIGO-CONVITE}}</div>
       
       <!-- IMPORTANTE: A imagem abaixo está configurada para usar a hospedagem desta aplicação. -->
-      <img src="https://ais-pre-qxvdta2cswvllv3uoclirw-446518874521.us-east1.run.app/image/Imagem_inst_2.png" alt="Instrução 2" class="instruction-img" />
+      <img src="/image/Imagem_inst_2.png" alt="Instrução 2" class="instruction-img" />
       
       <p style="margin-top: 25px;">No dia do evento, dirija-se à Secretaria de Visitantes com um documento com foto para retirar seu crachá.</p>
       
@@ -364,7 +364,7 @@ const templateHtml = `<!DOCTYPE html>
       </div>
       
       <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
-        <img src="https://ais-pre-qxvdta2cswvllv3uoclirw-446518874521.us-east1.run.app/image/banner_logo_RADIX_EIZO.png" alt="Logo RADIX Eizo" style="max-width: 500px; width: 100%; height: auto; display: inline-block;" />
+        <img src="/image/banner_logo_RADIX_EIZO.png" alt="Logo RADIX Eizo" style="max-width: 500px; width: 100%; height: auto; display: inline-block;" />
       </div>
       
       <div class="footer-links">
