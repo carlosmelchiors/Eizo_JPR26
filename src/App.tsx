@@ -245,7 +245,7 @@ const templateHtml = `<!DOCTYPE html>
 <body>
   <div class="wrapper">
 
-    <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Banner_JPR26.png" alt="JPR 2026" class="header-img" />
+    <img src="https://res.cloudinary.com/dq64vhxeg/image/upload/f_auto,q_auto/Banner_JPR26_dnrutl.png" alt="JPR 2026" class="header-img" />
 
     <div class="bar-dark">
       A RADIX Eizo confirma presença na JPR 2026 e convida você para nos visitar em nosso estande.
@@ -268,18 +268,18 @@ const templateHtml = `<!DOCTYPE html>
     </div>
 
     <a href="http://www.radix.med.br" target="_blank" style="display:block;">
-      <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Banner_RX570.png" alt="Monitor RX570" class="header-img" />
+      <img src="https://res.cloudinary.com/dq64vhxeg/image/upload/f_auto,q_auto/Banner_RX570_vq9ajs.png" alt="Monitor RX570" class="header-img" />
     </a>
-    <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/banner_Medecom3.png" alt="Banner Medecom" class="header-img" />
+    <img src="https://res.cloudinary.com/dq64vhxeg/image/upload/f_auto,q_auto/banner_Medecom3_jzu8xc.png" alt="Banner Medecom" class="header-img" />
 
     <div class="section-light" style="text-align: center;">
       <a href="https://spr.iweventos.com.br/evento/visitantesjpr2026/home" class="btn-orange">GARANTIR MINHA VAGA</a>
       <h2 class="title-orange">Como utilizar seu convite isento:</h2>
       <p><strong>1.</strong> Na tela inicial do sistema, informe o seu CPF na opção "Quero me inscrever no evento" e clique no botão "Fazer Inscrição".</p>
-      <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Imagem_inst_1.png" alt="Instrução 1" class="instruction-img" />
+      <img src="https://res.cloudinary.com/dq64vhxeg/image/upload/f_auto,q_auto/Imagem_inst1_pkorcn.png" alt="Instrução 1" class="instruction-img" />
       <p style="margin-top: 25px;"><strong>2.</strong> Siga com o processo de inclusão dos dados cadastrais, selecione a atividade "Visita à JPR 2026" e confirme. Insira o código abaixo para garantir sua isenção:</p>
       <div class="code-box">{{CÓDIGO-CONVITE}}</div>
-      <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/Imagem_inst_2.png" alt="Instrução 2" class="instruction-img" />
+      <img src="https://res.cloudinary.com/dq64vhxeg/image/upload/f_auto,q_auto/Imagem_inst2_f5lmeg.png" alt="Instrução 2" class="instruction-img" />
       <p style="margin-top: 25px;">No dia do evento, dirija-se à Secretaria de Visitantes com um documento com foto para retirar seu crachá.</p>
       <p>Além da exposição técnica, você também terá acesso ao curso de <strong>Profissionalismo e Gestão em Saúde</strong> (Sala G - Hall F/G), nos dias 30 de abril, 1º e 2 de maio.</p>
     </div>
@@ -301,7 +301,7 @@ const templateHtml = `<!DOCTYPE html>
         </div>
       </div>
       <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
-        <img src="https://carlosmelchiors.github.io/Eizo_JPR26/public/image/banner_logo_RADIX_EIZO.png" alt="Logo RADIX Eizo" style="max-width: 500px; width: 100%; height: auto; display: inline-block;" />
+        <img src="https://res.cloudinary.com/dq64vhxeg/image/upload/f_auto,q_auto/banner_logo_RADIX_EIZO_i9ufcu.png" alt="Logo RADIX Eizo" style="max-width: 500px; width: 100%; height: auto; display: inline-block;" />
       </div>
       <div class="footer-links">
         &#169; 2026 RADIX Eizo &#38; Lumix. Todos os direitos reservados.
@@ -442,7 +442,7 @@ export default function App() {
                       <div>
                         <h4 className="font-medium text-blue-800">Sobre as Imagens</h4>
                         <p className="text-sm text-blue-700 mt-1">
-                          As imagens do banner e as de instrução já estão configuradas no código para serem carregadas diretamente do seu repositório no GitHub (<code>carlosmelchiors.github.io/Eizo_JPR26</code>).
+                          As imagens do banner e as de instrução já estão configuradas no código para serem carregadas diretamente de um servidor CDN (Cloudinary), garantindo carregamento rápido e otimizado.
                         </p>
                       </div>
                     </div>
